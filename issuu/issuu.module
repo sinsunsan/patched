@@ -408,7 +408,8 @@ function issuu_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
           if ($field['widget']['module'] == 'issuu') {
             // process multivalues inside the field
             foreach ($node->{$attribute} as $i => $cck_in) {
-              if (!empty($cck_in['filepath']) && empty($cck_in['data']['doc_metadata'])) { //only allow add by the moment
+              if (!empty($cck_in['filepath'])/* Patch to prevent multiple upload of the file #183
+               && empty($cck_in['data']['doc_metadata'])*/) { //only allow add by the moment
                 //FIXME horrible line, api suggestion?
                 $path = substr(realpath('index.php'), 0, -10) . '/' . $cck_in['filepath'];
                 $response = issuu_api_issuu_document_upload($path, $cck_in['data']);

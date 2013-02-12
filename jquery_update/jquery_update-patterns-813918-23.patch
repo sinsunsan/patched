@@ -1,0 +1,43 @@
+From 805e0a2d89cca9f4c3bfdff69aa4b86eb22761ab Tue Jan 24 13:24:20 2012
+Date: Tue, 24 Jan 2012 13:24:20 -0500
+Subject: [PATCH] Issue #813918 by xp314a: Updated pattern in _get_version to
+ include headers of all included jQuery files.
+
+---
+ jquery_update.module |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/jquery_update.module b/jquery_update.module
+index 9e53f8a..af288f5 100644
+--- a/jquery_update.module
++++ b/jquery_update.module
+@@ -105,7 +105,12 @@ function jquery_update_preprocess_page(&$variables) {
+  */
+ function jquery_update_get_version($jquery_path = NULL) {
+   $version = 0;
+-  $pattern = '# * jQuery JavaScript Library v([0-9\.a-z]+)#';
++  $patterns = array(
++    'jQuery (\d[\w\d\.]+)', //  * jQuery 1.2.6 - New Wave Javascript
++    'jQuery JavaScript Library v([\w\d\.]+)', // jQuery JavaScript Library v1.3.2/1.7.1
++    'jQuery v([\w\d\.]+)' // /*! jQuery v1.7.1 jquery.com | jquery.org/license */
++  );
++  $pattern = '/' . implode('|', $patterns) . '/';
+ 
+   // No file is passed in so default to the file included with this module.
+   if (is_null($jquery_path)) {
+@@ -115,7 +120,11 @@ function jquery_update_get_version($jquery_path = NULL) {
+   // Return the version provided by jQuery Update.
+   $jquery = file_get_contents($jquery_path);
+   if (preg_match($pattern, $jquery, $matches)) {
+-    $version = $matches[1];
++    for ($i = 1; $i <= count($patterns); ++$i) {
++	    if (!$matches[$i]) continue;
++		  $version = $matches[$i];
++		  break;
++	  }
+   }
+ 
+   return $version;
+-- 
+1.7.5.4
+
